@@ -1,7 +1,7 @@
 cmEvalEco
 =========
 
-Evaluate output of pyMonkey on E. coli against RegulonDB.
+Evaluate output of pyMonkey (in tsv format) on E. coli against RegulonDB.
 This first comparison identifies how many RegulonDB motifs are recapitulated.
 
 =========
@@ -25,5 +25,8 @@ source("compare_regulondb_single.R")
 ```
 
 the final number printed out will be the overlap.
-A typical value for cMonkey (R) is about 50.
+A typical value for cMonkey (R) is about 50 (although for the example file, you will not get that value ;).
 
+=========
+
+I have added (gzipped) copies of a cMonkey tsv file and the full DISTILLER E. coli data set. You will want to gunzip them after cloning this repo.

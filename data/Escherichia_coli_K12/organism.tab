@@ -1,0 +1,9 @@
+-- dump date   	20080125_165734
+-- class       	Genbank::Organism
+-- table       	organism
+-- table       	main
+-- field 1	id
+-- field 2	taxonomy
+-- header
+-- id	taxonomy
+83333	Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales; Enterobacteriaceae; Escherichia
