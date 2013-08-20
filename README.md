@@ -12,10 +12,11 @@ You will need the cMonkey package installed (and its dependencies), as well as h
 
 ```
 progs/meme
+progs/fimo
 progs/mast
 ```
 
-in the current directory (i.e. meme/mast in the "progs" directory; they can be symlinks to their actual locations).
+in the current directory (i.e. meme/mast/fimo in the "progs" directory; they can be symlinks to their actual locations).
 
 Next, check out the "Defaults" in clusters.R; if they are not correct, then pre-set them in the R environment. Then:
 
