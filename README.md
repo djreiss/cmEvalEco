@@ -8,7 +8,16 @@ This first comparison identifies how many RegulonDB motifs are recapitulated.
 
 To run, in R:
 
-First check out the "Defaults" in clusters.R; if they are not correct, then pre-set them in the R environment. Then:
+You will need the cMonkey package installed (and its dependencies), as well as having 
+
+```
+progs/meme
+progs/mast
+```
+
+in the current directory (i.e. meme/mast in the "progs" directory; they can be symlinks to their actual locations).
+
+Next, check out the "Defaults" in clusters.R; if they are not correct, then pre-set them in the R environment. Then:
 
 ```
 source("clusters.R")
