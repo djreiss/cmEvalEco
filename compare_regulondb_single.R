@@ -69,7 +69,9 @@ fimo.out$Motif <- NULL
 require( data.table )
 fimo.out <- as.data.table( fimo.out )
 setkey( fimo.out, bic, mot, Seq, Start )
+}  ## if not exists('fimo.out')
 
+if ( ! exists( 'm' ) ) {
 m.tmp <- lapply( nc, function( i ) rep( FALSE, length=i ) ); names( m.tmp ) <- names( nc )
 p.scans <- fimo.out
 m <- mclapply( 1:length( motifs ), function( i ) {
@@ -99,7 +101,7 @@ if ( is.list( m[[ 1 ]] ) ) {
 }
 
 #if ( exists( 'DO_STOP' ) && DO_STOP ) stop()
-} ## if not exists('fimo.out')
+} ## if not exists('m')
 
 #############
 
