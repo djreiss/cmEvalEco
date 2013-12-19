@@ -1,9 +1,9 @@
 require( multicore )
-e$parallel.cores <- e$parallel.cores.motif <- 4
-options( cores=4 )
+e$parallel.cores <- e$parallel.cores.motif <- 12
+options( cores=12 ); options( mc.cores=12 )
 debug.on()
 
-p.cutoff <- 1e-6 ##1e-5
+if ( ! exists( 'p.cutoff' ) ) p.cutoff <- 1e-6 ##1e-5
 
 ## Get the equivalent of 'm' output from 'new.cluster.motifs()' in cmonkey-ensemble-funcs.R
 seq.type <- 1 ##'upstream meme'
@@ -36,7 +36,7 @@ dir.create( 'fimo_out' )
 seqs.file <- e$my.tempfile( 'fimo_seqs' )
 writeLines( paste( paste( ">", names( e$genome.info$genome.seqs ), sep="" ), e$genome.info$genome.seqs, sep="\n" ),
            con=seqs.file )
-inds <- c( seq( 1, e$k.clust, by=100 ), e$k.clust )
+inds <- c( seq( 1, e$k.clust, by=50 ), e$k.clust )
 files <- mclapply( 1:( length( inds ) - 1 ), function( i ) {
   mots.file <- e$all.motifs.to.mast.file( ks=inds[i]:inds[i+1], seq.type=names(e$mot.weights)[1],
                                          e.value.cutoff=Inf, resid.cutoff=Inf )
