@@ -12,7 +12,7 @@ if ( ! exists('n.motifs') ) n.motifs <- 2
 
 x=read.delim(clusts.file)
 for (i in c('resid','dens_string','meanp_meme')) x[[i]] = as.numeric(gsub('f0','',as.character(x[[i]])))
-e=cmonkey.init(organism=organism, bg.order=0, k.clust=nrow(x),
+e=cmonkey.init(organism=organism, bg.order=0, k.clust=nrow(x), seed.method=c(rows='rnd',cols='rnd'),
   discard.genome=F, parallel.cores=options('cores'), parallel.cores.motif=options('cores'))
 e$cmonkey.re.seed( e )
 #sys.source("~/scratch/biclust/cmonkey-funcs.R",envir=e,chdir=T)

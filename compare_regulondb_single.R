@@ -36,7 +36,7 @@ dir.create( 'fimo_out' )
 seqs.file <- e$my.tempfile( 'fimo_seqs' )
 writeLines( paste( paste( ">", names( e$genome.info$genome.seqs ), sep="" ), e$genome.info$genome.seqs, sep="\n" ),
            con=seqs.file )
-inds <- c( seq( 1, e$k.clust, by=50 ), e$k.clust )
+inds <- round( seq.int( 1, e$k.clust, length=options('cores')$cores ) )
 files <- mclapply( 1:( length( inds ) - 1 ), function( i ) {
   mots.file <- e$all.motifs.to.mast.file( ks=inds[i]:inds[i+1], seq.type=names(e$mot.weights)[1],
                                          e.value.cutoff=Inf, resid.cutoff=Inf )
@@ -55,7 +55,7 @@ fimo.out <- system( sprintf( 'bunzip2 -c fimo_out/fimo_out_*.bz2 | awk \'($6<=%s
                             as.character( p.cutoff ) ), intern=T )
 fimo.out <- as.data.frame( do.call( rbind, lapply( fimo.out, function( i ) strsplit( i, '\t' )[[ 1 ]] ) ) )
 colnames( fimo.out ) <- strsplit( system( sprintf( 'bunzip2 -c %s.bz2 | head -1', files[1] ), intern=T ), '\t' )[[ 1 ]]
-system( "rm -rvf fimo_out" )
+#system( "rm -rvf fimo_out" )
 fimo.out$Start <- as.integer( as.character( fimo.out$Start ) )
 fimo.out$Stop <- as.integer( as.character( fimo.out$Stop ) )
 fimo.out$`Log-odds` <- as.numeric( as.character( fimo.out$`Log-odds` ) )
