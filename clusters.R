@@ -1,11 +1,11 @@
 require(cMonkey)
 debug.on()
 
-require(multicore)
-options(cores=4)
+require(parallel)
+options(mc.cores=4)
 
 ## defaults (can be overridden before calling this script)
-organism = 'eco'
+if ( ! exists('organism') ) organism = 'eco'
 if ( ! exists('clusts.file') ) clusts.file = 'Eco_clusters.tsv'
 if ( ! exists('ratios') ) ratios <- 'DISTILLER_data.tsv'
 if ( ! exists('n.motifs') ) n.motifs <- 2
@@ -43,7 +43,7 @@ tmp = mclapply(1:nrow(x), function(i){
   else clust$meme.out = NULL
   ##print(clust$meme.out)
 
-  mast.out <- list();
+  mast.out <- NULL
   pv.ev = list()
   if ( ! is.null( clust$meme.out ) ) {
     mast.out <- try( e$runMast( meme.out, e$mast.cmd[ seq.type ], names( all.seqs ), all.seqs,
