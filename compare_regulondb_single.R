@@ -1,6 +1,7 @@
-require( multicore )
-e$parallel.cores <- e$parallel.cores.motif <- 12
-options( cores=12 ); options( mc.cores=12 )
+require( parallel )
+require( data.table )
+#e$parallel.cores <- e$parallel.cores.motif <- 1
+#options( cores=1 ); options( mc.cores=1 )
 debug.on()
 
 if ( ! exists( 'p.cutoff' ) ) p.cutoff <- 1e-6 ##1e-5
@@ -30,13 +31,13 @@ nc.cumsum <- c( 0, cumsum( nc ) )[ 1:length( nc ) ]; names( nc.cumsum ) <- names
 #m <- m[ motifs ]
 ## Get the equiv. of 'fimo.out' (from the ensemble stuff) for this bicluster set
 if ( ! exists( 'fimo.out' ) ) {
-sys.source( "cmonkey-motif-other.R", envir=e )
+sys.source( "~/scratch/biclust/cmonkey-motif-other.R", envir=e )
 system( "rm -rvf fimo_out" )
 dir.create( 'fimo_out' )
 seqs.file <- e$my.tempfile( 'fimo_seqs' )
 writeLines( paste( paste( ">", names( e$genome.info$genome.seqs ), sep="" ), e$genome.info$genome.seqs, sep="\n" ),
            con=seqs.file )
-inds <- round( seq.int( 1, e$k.clust, length=options('cores')$cores ) )
+inds <- round( seq.int( 1, e$k.clust, length=options('mc.cores')$mc.cores ) )
 files <- mclapply( 1:( length( inds ) - 1 ), function( i ) {
   mots.file <- e$all.motifs.to.mast.file( ks=inds[i]:inds[i+1], seq.type=names(e$mot.weights)[1],
                                          e.value.cutoff=Inf, resid.cutoff=Inf )
@@ -66,7 +67,6 @@ fimo.out$mot <- as.integer( tmp[ ,3 ] )
 fimo.out$Strand <- substr( tmp[ ,1 ], 1, 1 )
 rm( tmp )
 fimo.out$Motif <- NULL
-require( data.table )
 fimo.out <- as.data.table( fimo.out )
 setkey( fimo.out, bic, mot, Seq, Start )
 }  ## if not exists('fimo.out')
@@ -226,19 +226,21 @@ tmp <- mclapply( names( m.eco ), function( i ) {
   data.frame( i, motifs[tmp], tout[tmp] )
 }, mc.preschedule=F )
 eco.hits <- do.call( rbind, tmp )
-rm( tmp )
 colnames( eco.hits ) <- c( 'eco.tf', 'motif', 'distance' )
+rm( tmp )
 
 ## Now try comparing motif.cluster hits to actual locations in RegulonDB
+## system( 'wget http://regulondb.ccg.unam.mx/menu/download/datasets/files/BindingSiteSet.txt' )
 if ( ! exists( 'm.eco2' ) ) {
-  tmp <- readLines( 'RegulonDB/BindingSiteSet.txt' )
-  if ( FALSE ) {
-    tmp <- readLines( 'RegulonDB/BindingSitePredictionSet.txt' )
-    skip <- grep( '#   (7) Method', tmp, fixed=T ) + 2
-  }
+  if ( ! exists( 'binding.site.set.file' ) ) binding.site.set.file <- 'RegulonDB/BindingSiteSet.txt'
+  tmp <- readLines( binding.site.set.file ) 
+    #if ( FALSE ) {
+    #    tmp <- readLines( 'RegulonDB/BindingSitePredictionSet.txt' )
+    #    skip <- grep( '#   (7) Method', tmp, fixed=T ) + 2
+    #}
   skip <- grep( 'Evidence that supports the existence', tmp, fixed=T ) + 2
   rm( tmp )
-  tab <- read.delim( 'RegulonDB/BindingSiteSet.txt', skip=skip, head=F )
+  tab <- read.delim( binding.site.set.file, skip=skip, head=F )
   tab <- subset( tab, V4 != 0 & V5 != 0 )
   n.tot2 <- sort( table( as.character( tab$V2 ) ), decreasing=T )
   n.tot2 <- n.tot2[ n.tot2 >= 3 ]
@@ -250,10 +252,11 @@ if ( ! exists( 'm.eco2' ) ) {
   m.tmp <- lapply( nc, function( i ) rep( FALSE, length=i ) ); names( m.tmp ) <- names( nc )
   m.eco2 <- mclapply( names( n.tot2 ), function( tf ) {
     scans <- subset( tab, Motif == tf )
+    cat(tf,nrow(scans),'\n')
     if ( nrow(scans) <= 0 ) return( lapply( m.tmp, function( i ) integer(0) ) ) ##Matrix( m.tmp ) )
     for ( iii in 1:nrow( scans ) ) {
       inds <- scans$Start[ iii ]:scans$Stop[ iii ] ##posn + ii
-      chr <- levels( scans$Seq )[ scans$Seq[ iii ] ] ## gene
+      chr <- names( nc )[ 1 ] ##levels( scans$Seq )[ scans$Seq[ iii ] ] ## gene
       m.tmp[[ chr ]][ inds ] <- TRUE ##scans$posns[j]:(scans$posns[j]+wi-1),1] = 1
     }
     cat( tf, which( names( n.tot2 ) == tf ), length( n.tot2 ), nrow( scans ), "\n" ) ##sum( m.tmp ), "\n" )
@@ -265,7 +268,7 @@ if ( ! exists( 'm.eco2' ) ) {
 
 tmp <- mclapply( names( m.eco2 ), function( i ) {
   print( i )
-  x <- m.eco2[[ i ]][[ 2 ]]
+  x <- m.eco2[[ i ]][[ 1 ]]
   if ( length( x ) <= 0 ) return()
   tout <- rep( 1, length( m ) )
   for ( j in 1:length( m ) ) {
@@ -282,8 +285,8 @@ tmp <- mclapply( names( m.eco2 ), function( i ) {
   data.frame( i, motifs[tmp], tout[tmp] )
 }, mc.preschedule=F )
 eco.hits2 <- do.call( rbind, tmp )
-rm( tmp )
 colnames( eco.hits2 ) <- c( 'eco.tf', 'motif', 'distance' )
+rm( tmp )
 
 ## Get e.values (need to filter out really high e-val motifs, somehow)
 ms <- e$meme.scores[[ seq.type ]]

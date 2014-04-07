@@ -34,8 +34,8 @@ if ( exists( 'eco.hits2' ) ) {
     b.m <- t( apply( sapply( strsplit( as.character( tmp$motif ), '_' ), '[', 2:3 ), 2, as.integer ) )
     tmp <- tmp[ e.vals[ b.m ] <= eval.cutoff, ] # use 100 as e-value cutoff (we did not use this for ensemble analysis; what if we did?)
     tmp <- subset( tmp, ! duplicated( tmp$motif ) )
-    print( sprintf('Total unique RegulonDB motifs (out of 101) detected (max motifs %.0f) = %d',
-                   max.motifs, length( unique( tmp$eco.tf ) )) )
+    print( sprintf('Total unique RegulonDB motifs (out of %d) detected (max motifs %.0f) = %d',
+                   length(m.eco2), max.motifs, length( unique( tmp$eco.tf ) )) )
 
     clusts <- as.integer( sapply( strsplit( as.character( tmp$motif ), '_' ), '[', 2 ) )
     n.hits <- rep( 0, e$k.clust ); names( n.hits ) <- 1:e$k.clust
